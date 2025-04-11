@@ -1,19 +1,28 @@
 #-> dict[str, int] indica que a função retorna um dicionário com chaves do tipo str e valores do tipo int.
 #def = define a função
+#strip(): tira espaços no começo/fim
+#lower(): padroniza para minúsculas
 def coletar_dados()-> dict[str, int]:
-    resposta = input("Continuar ou 'sair'")
+    resposta = input("Continuar ou 'sair'").strip().lower()
     while resposta != 'sair':
         nome = input('Nome: ')
         idade = input('Idade: ')
-        idade = int(idade)
-        #Adiciona valores coletados ao dicionario
-        dicionario[nome] = idade
+        try:
+            idade = int(idade)
+            #Adiciona valores coletados ao dicionario
+            dicionario[nome] = idade
+        except ValueError:
+            print("Idade inválida. Digite um número inteiro.")
         resposta = input("Continuar ou 'sair'")
 
+#dados: é o parâmetro da função, é o nome que será usado dentro da função para acessar o dicionário passado.
+#-> float: indica que a função retornará um número decimal.
+#len: conta quantos pares chave-valor existem.
 def calcular_media(dados: dict[str, int]) -> float:
     return sum(dados.values()) / len(dados)
     
-
+#max(): retorna o maior valor de um iterável como lista, tupla ou dicionário. Contudo, se adicionado como dicionario deve conter o argumento key.
+#key=dados.get: compara os strings com base no valor associado a eles no dicionário.
 def mais_velho(dados: dict[str, int]) -> str:
     return max(dados, key=dados.get)
 

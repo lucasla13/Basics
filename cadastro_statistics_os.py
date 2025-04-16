@@ -1,8 +1,8 @@
 # -- IMPORTAÇÕES --
-#os: Limpar a tela do terminal./Criar, deletar ou navegar por pastas e arquivos./Obter informações do sistema.
-import os
+import os #os: Limpar a tela do terminal./Criar, deletar ou navegar por pastas e arquivos./Obter informações do sistema.
 import statistics as stats
 import time
+import csv
 
 # -- COLETA DE DADOS --
 def coletar_pessoa(dados: dict[str, int]) -> dict[str, int]:
@@ -19,8 +19,7 @@ def coletar_pessoa(dados: dict[str, int]) -> dict[str, int]:
 # -- CÁLCULOS --
 def estatisticas(dados: dict[str, int]):
     def calcular_media()->float:
-        #Chama stats para executar a função mean, no dict definido como dados, calculando os valores (value)
-        return stats.mean(dados.values())
+        return stats.mean(dados.values()) #Chama stats para executar a função mean, no dict definido como dados, calculando os valores (value)
 
     def calcular_mediana()->float:
         return stats.median(dados.values())
@@ -39,43 +38,70 @@ def estatisticas(dados: dict[str, int]):
 
 # -- MENU --
 def menu():
-    dados = {}
-    while True:
-
-        #\n: quebra de linha
-        print( "\n-- MENU --")
+        print( "\n-- MENU --") #\n: quebra de linha
         print('1 - Coletar dados')
         print('2 - Mostrar dados')
         print('3 - Sair')
 
-        #input(): sempre retorna texto (string), então "1" é diferente de 1
-        opcao = input('Escolha uma opção: ')
+        opcao = input('Escolha uma opção: ') #input(): sempre retorna texto (string), então "1" é diferente de 1
 
-        if opcao == "1":
-            #Limpa a tela do terminal (Windows usa 'cls', outros usam 'clear')
-            os.system('cls' if os.name == 'nt' else 'clear')
+        os.system('cls' if os.name == 'nt' else 'clear') #Limpa a tela do terminal (Windows usa 'cls', outros usam 'clear')
 
-            coletar_pessoa(dados)
+        return opcao
 
-         #f'': é uma f-string (formatação de string), usada para inserir variáveis dentro do texto.
-            #print(f'Média de idade: {stats.mean(dados.values())}')
-        elif opcao == "2":
-            if dados:
-                resultados = estatisticas(dados)
-                print("\n -- ESTATÍSTICAS --")
-                print("Média:", resultados['media'])
-                print("Mediana:", resultados['mediana'])
-                print("Mais velho(s):", resultados['mais_velho'])
-                print("Mais joven(s):", resultados['mais_jovens'])
+def main(opcao):
+        dados = carregar_csv("dados.csv")
+        while True:
+            if opcao == "1":
+                coletar_pessoa(dados)
+                opcao = menu()
+            
+            elif opcao == "2":
+                if dados:
+                    resultados = estatisticas(dados)
+                    print("\n -- ESTATÍSTICAS --")
+                    print("Média:", resultados['media']) #f'': é uma f-string (formatação de string), usada para inserir variáveis dentro do texto.Exemplo: print(f'Média de idade: {stats.mean(dados.values())}')
+                    print("Mediana:", resultados['mediana'])
+                    print("Mais velho(s):", resultados['mais_velho'])
+                    print("Mais joven(s):", resultados['mais_jovens'])
+                else:
+                    print("Nenhum dado disponível ainda.")
+                opcao = menu()
+            elif opcao == "3":
+                salvar_csv(dados)  # salvar antes de sair
+                print("Finalizando programa")
+                time.sleep(2)
+                os.system('cls' if os.name == 'nt' else 'clear')
+                break
             else:
-                print("Nenhum dado disponível ainda.")
-        elif opcao == "3":
-            print("Finalizando programa")
-            time.sleep(2)
-            os.system('cls' if os.name == 'nt' else 'clear')
-            break
-        else:
-            print("Opção inválida")
+                print("Opção inválida")
+
+# -- EXPORTAR CSV --
+def salvar_csv(dados: dict[str, int], nome_arquivo: str= "dados.csv"):
+    with open(nome_arquivo, mode='w', newline='') as arquivo:
+        writer = csv.writer(arquivo)
+        writer.writerow(["Nome","Idade"])
+
+        for nome, idade in dados.items():
+            writer.writerow([nome, idade])
+    print(f"Dados salvos em {nome_arquivo}")
+
+# -- CARREGA CSV --
+def carregar_csv(nome_arquivo: str) -> dict[str, int]:
+    dados = {}
+    try:
+         with open(nome_arquivo, mode='r') as arquivo:
+              reader = csv.reader(arquivo)
+
+              next(reader)
+
+              for row in reader:
+                   nome, idade = row
+                   dados[nome] = int(idade)
+    except FileNotFoundError:
+         print(f"Arquivo {nome_arquivo} não encontrado")
+    return dados
 
 # -- EXECUÇÃO --
-menu()
+opcao = menu()  # obtém a escolha do usuário no menu
+main(opcao)     # executa a lógica principal com base na escolha
